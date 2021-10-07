@@ -1,0 +1,33 @@
+---
+- hosts: all
+  tasks:
+    - name: ensure nginx is at the latest version
+      become: true
+      apt: name=nginx state=latest
+    - name: start nginx
+      become: true
+      service:
+          name: nginx
+          state: started
+    - name: create new folder for html
+      become: true
+      file:
+        path: /var/www/html/new
+        state: directory
+    - name: copy the html file to new folder
+      become: true
+      copy:
+        src: /home/vakayilkevin/ansible/html/
+        dest: /var/www/html/new 
+    - name: Replace nginx config file
+      become: true
+      copy:
+        src: /home/vakayilkevin/ansible/files/
+        dest: /etc/nginx/sites-enabled/
+      notify: restart nginx
+  handlers:
+    - name: restart nginx
+      become: true
+      service:
+        name=nginx
+        state=restarted
